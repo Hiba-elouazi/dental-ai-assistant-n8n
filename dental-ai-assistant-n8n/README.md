@@ -28,4 +28,4 @@ An AI-powered assistant for dental clinics that helps patients book appointments
 
 ## 🖼️ Demo
 
-![Booking AI Workflow](assets/ai agent.png)
+![Booking AI Workflow](assets/ai_agent.png)
