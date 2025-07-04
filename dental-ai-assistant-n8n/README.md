@@ -25,3 +25,7 @@ An AI-powered assistant for dental clinics that helps patients book appointments
 3. Replace placeholder values in credentials
 4. Activate your webhook node and test
 
+
+## 🖼️ Demo
+
+![Booking AI Workflow](assets/ai agent.png)
