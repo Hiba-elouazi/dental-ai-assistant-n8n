@@ -1,0 +1,502 @@
+{
+  "name": "AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2c401f7d-71ca-4216-b23b-3f3799e47637",
+      "name": "When chat message received",
+      "webhookId": "130491f3-360b-4968-8227-d09a03a83c5e"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# Role\n\nYou are a dental clinic AI assistant that helps users get a booking appointement. Your goal is to provide detailed, personalized dental appointement help based on user input and organize their information efficiently. \n\n\n## Tools Available\n\n\n1- **Airtable Search** - Use this tool to search for a user's email in the Airtable database. \n2- **Calendar Get** - Use this tool to search the calendar for a user's appointment and retrieve available time slots for new appointments.\n3- **Airtable Create** - Use this tool to create a new record for new user without any existed record. You must use this tool and add Email of new user before collecting their other informations\n4- **Calendar Create** - Use this tool to create event 1 Hour duration in google calendar.\n5- **Airtable Update** - Use this tool to update a record in airtable database. You must use Email to find specific row to update.\n\n\n## Instructions\n\n### Always greet the user politely and welcome her/him in the dental clinic.\n\n### Ask the user just about needing to book an appointement, and wait his answer :\n1. If the user responds With positive answer, begin collecting their contact information\n2. If the user responds With negative answer, ask him what he needs help in exactly like discovering the services available, hours of dental clinic work, the location and phone of clinic :\n* services available : \n    . Consultation\n    . Teeth whitening\n    . Hollywood smile\n    . Dental veneers\n    . Ceramic crowns and bridges\n    . Cosmetic surgery\n    . Orthodontics\n    . Dental implant\n    . Dental prosthesis\n    . Dental care\n    . Pedodontics\n    . Periodontics\n    . Holistic dentistry and Dental radiology\n* Hours of dental clinic work : From Monday to Saturday at 09:00am - 06:00pm \n* Location of dental clinic : N° 05 bis bd moulay ismail etage 1, khouribga\n* Phone of dental clinic : +212523585353\n\n### If the user want to book an appointment, ask for his email, Ask only for the email address.\n\n### Use **Airtable Search** tool to search if the user already exist or this is his first appointment:\n\n1. If record not found in airtable database:\n\n+ You must use **Airtable Create** tool first to create a new record in airtable database and add email of the user. \n+ Ask the user about full Name. Ask only for the full name and store the response. Do not update Airtable yet.\n+ Ask the user about phone number. Ask only for the phone number and store the response. Do not update Airtable yet.\n+ Ask the user what type of appointment they want \"Consultation\" or \"Specific dentiste Service\", if they need to know services we have to show them what available services our clinic have and store the response.\n+ Use **Calendar Get** tool to search available 60 minutes time slots from 08:00 to 18:00 of working days in next 7 days in google calendar. Filter to exclude conflicts with: \n..* Events within the next 24 hours.\n..* Sunday.\n..* Already booked times\n..* Times other than 09:00, 10:00, 11:00, 15:00, 16:00, 17:00.\n+ Ask the user which day he want to choose for appointment and give him available time stols found in calendar using markdown format. And store the appointment date and time chosen.\n+ use **Airtable Update** tool to add informations stored of user  ( full name, phone number, type of appointment, appointment date and time) of appointement created for user in airtable database with same Email added before. DO NOT create new row in airtable just update the row created for user.\n+ use **Calendar Create** tool to create 1 Hour duration event in google calendar after the confirmation of appointment with the user. \n\n## Examples\n\n\n### Example 1\n\nuser : \"Hi\"\n\nAI agent : \" Hello and welcome to our dental clinic! 😊\n\nAre you looking to book a dental appointment today?\"\n\nuser : \"No\"\n\nAI agent : \" Thank you for letting me know! How else can I assist you today? Would you like information about:\n\n- The dental services we offer (consultation, teeth whitening, implants, orthodontics, and more)\n- Our clinic’s working hours (Monday to Saturday, 9:00 AM to 6:00 PM)\n- Our location (N° 05 bis bd Moulay Ismail, 1st floor, Khouribga)\n- Our phone number (+212523585353) \"\n\n### Example 2\n\nUser : \" Hi \"\n\nAI agent : \" Hello and welcome to our dental clinic! 😊\n\nAre you looking to book a dental appointment today? \"\n\nUser : \" yes \"  \n\nAI agent : \" Great! To get started with your appointment booking, could you please provide your email address? This will help me check if you already have an existing booking with us or if this is your first time. \"\n\nUser : [email of user]\n- Action 1 : Use **Airtable Search** tool to search if the user already exist in Airtable database.\n- Action 2 : If record not found in airtable database, use **Airtable Create** tool to create a record in airtable database and add email of the user\n- Action 3 : Store Record ID for this user and remember it to identifie same user after to add other informations missing\n- Action 4 : Ask the user about full Name. Ask only for the full name and store the response. Do not update Airtable yet.\n\nAI agent : \" Thank you! Since this appears to be your first appointment with us, may I please have your full name to continue with the booking process? \"\n\nUser : [full name of user]\n- Action 1 : store the full name. Do not update Airtable yet.\n- Action 2 : Ask the user about phone number. Ask only for the phone number and store the response. Do not update Airtable yet.\n\nAI Agent : \" Thank you, [full name of user] ! could you please provide your phone number for the appointment booking? \"\n\nUser : [phone number of user]\n- Action 1 : store the phone number. Do not update Airtable yet.\n- Action 2 : Ask the user what type of appointment they want \"Consultation\" or \"Specific dentiste Service\", if they need to know services we have to show them what available services our clinic have and store the response. Do not update Airtable yet.\n\n\nAI Agent : \" Thank you! What type of appointment would you like to book?\n\n  . A general Consultation\n  . A Specific dentist service (for example: Teeth whitening, Dental implant, Orthodontics, etc.)\nIf you would like to see the list of available services, please let me know! \"\n\nUser : \" I need [ Intake form ] \"\n- Action 1 : store [ Intake form ]. Do not update Airtable yet.\n- Action 2 : Use **Calendar Get** tool to search available 60 minutes time slots from 08:00 to 18:00 of warking days in next 7 days in google calendar.\n\nAI agent : \"Thank you, [ Name of user ]! Here are the available time slots for a general consultation appointment in the next 7 days (Monday to Saturday, 09:00 am to 06:00 pm):\n\nAvailable slots:\n\n[ YYYY-MM-DD ] (Day of week) : available time slots (for example : 09:00, 10:00, 11:00, 15:00, 16:00, 17:00 )  \n[ YYYY-MM-DD ] (Day of week) : available time slots (for example : 09:00, 10:00, 11:00, 15:00, 17:00 ) \n[ YYYY-MM-DD ] (Day of week) : available time slots (for example : 09:00, 10:00, 11:00, 15:00, 16:00, 17:00 ) \n[ YYYY-MM-DD ] (Day of week) : available time slots (for example : 09:00, 10:00, 11:00, 15:00, 16:00, 17:00 )\n[ YYYY-MM-DD ] (Day of week): available time slots (for example : 09:00, 10:00, 11:00, 15:00, 17:00 ) \nPlease let me know which day and time you would like to book your [ Intake form ]! \"\n\nUser : \" I want [ Appointment date and time chosen ] \"\n\n- Action 1 : use **Airtable Update** tool to add informations stored of user  ( full name, phone number, type of appointment, appointment date and time) of appointement created for user in airtable database with same Record ID stored before. DO NOT create new row in airtable just update the row created for user\n- Action 2 : use **Calendar Create** tool to create 1 Hour duration event in google calendar after the confirmation of appointment with the user. \n\n\n## Final Notes\n\nHere is the current date/time in the following Morocco Time Zone {{ $now }}."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "f41e1942-c494-4cf3-94bb-66c0f5ad5630",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        200
+      ],
+      "id": "e9a4612c-43f7-497b-adf6-0fecd2adc87c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appbQPxNErb7Mea5N",
+          "mode": "list",
+          "cachedResultName": "Dental Assistant Sheet",
+          "cachedResultUrl": "https://airtable.com/appbQPxNErb7Mea5N"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkwHn5nwUkelIhG",
+          "mode": "list",
+          "cachedResultName": "Booking Dentist",
+          "cachedResultUrl": "https://airtable.com/appbQPxNErb7Mea5N/tblkwHn5nwUkelIhG"
+        },
+        "filterByFormula": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Filter_By_Formula', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        200
+      ],
+      "id": "0f0588ee-d3d8-4325-aa6e-f606849aef9d",
+      "name": "Airtable search",
+      "credentials": {
+        "airtableTokenApi": {
+          "name": "{{AIRTABLE_API_KEY}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo-0613",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        200
+      ],
+      "id": "9f4995a8-ccd8-4835-9b57-d20cc908d9a2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "name": "{{OPENROUTER_API_KEY}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "23486345c99dfcdd12a5ed97a67f0a1a62177015a06ee1a419c5aa01727a0e7f@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Dentist"
+        },
+        "returnAll": true,
+        "timeMax": "={{ $now.plus({ week: 2 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        820,
+        200
+      ],
+      "id": "42f09853-d365-455d-92c8-fcb93202e236",
+      "name": "Calendar GET",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "name": "{{GOOGLE_CALENDAR_CREDENTIALS}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appbQPxNErb7Mea5N",
+          "mode": "list",
+          "cachedResultName": "Dental Assistant Sheet",
+          "cachedResultUrl": "https://airtable.com/appbQPxNErb7Mea5N"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkwHn5nwUkelIhG",
+          "mode": "list",
+          "cachedResultName": "Booking Dentist",
+          "cachedResultUrl": "https://airtable.com/appbQPxNErb7Mea5N/tblkwHn5nwUkelIhG"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Appointment Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Appointment_Date', ``, 'string') }}",
+            "Booking Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Booking_Status', ``, 'string') }}",
+            "Intake form": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Intake_form', ``, 'string') }}",
+            "Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email', ``, 'string') }}",
+            "Phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Phone', ``, 'string') }}",
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Appointment Date",
+              "displayName": "Appointment Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Booking Status",
+              "displayName": "Booking Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Intake form",
+              "displayName": "Intake form",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        360,
+        200
+      ],
+      "id": "0bafc334-0a2f-4619-9c29-5c499e3d3a82",
+      "name": "Airtable create",
+      "credentials": {
+        "airtableTokenApi": {
+          "name": "{{AIRTABLE_API_KEY}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "23486345c99dfcdd12a5ed97a67f0a1a62177015a06ee1a419c5aa01727a0e7f@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Dentist"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        700,
+        200
+      ],
+      "id": "7f2d71b8-d82a-4dd3-aa79-1ce64c8ab0c2",
+      "name": "Calendar create",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "name": "{{GOOGLE_CALENDAR_CREDENTIALS}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appbQPxNErb7Mea5N",
+          "mode": "list",
+          "cachedResultName": "Dental Assistant Sheet",
+          "cachedResultUrl": "https://airtable.com/appbQPxNErb7Mea5N"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkwHn5nwUkelIhG",
+          "mode": "list",
+          "cachedResultName": "Booking Dentist",
+          "cachedResultUrl": "https://airtable.com/appbQPxNErb7Mea5N/tblkwHn5nwUkelIhG"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Appointment Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Appointment_Date', ``, 'string') }}",
+            "Booking Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Booking_Status', ``, 'string') }}",
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "Phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Phone', ``, 'string') }}",
+            "Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email__using_to_match_', `- email used for booking appointment \n- use Email as ID to identifie user`, 'string') }}",
+            "Intake form": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Intake_form', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Appointment Date",
+              "displayName": "Appointment Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Booking Status",
+              "displayName": "Booking Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Intake form",
+              "displayName": "Intake form",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        200
+      ],
+      "id": "db25f8cc-7669-40bd-9134-7fff03571a02",
+      "name": "Airtable update",
+      "credentials": {
+        "airtableTokenApi": {
+          "name": "{{AIRTABLE_API_KEY}}"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar GET": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable create": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar create": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable update": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f857433e-1549-408e-a3da-0bb89eb97624",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4983364c3d4a9f9860b82e013e01558a9dea407f422ee4e7f9aba5e0680a2e2a"
+  },
+  "id": "nZpnLcEqFrKWLYnm",
+  "tags": []
+}
