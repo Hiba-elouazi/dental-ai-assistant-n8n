@@ -25,16 +25,3 @@ An AI-powered assistant for dental clinics that helps patients book appointments
 3. Replace placeholder values in credentials
 4. Activate your webhook node and test
 
-## 🕒 Working Hours
-
-Monday–Saturday, 9:00AM – 6:00PM  
-Location: N° 05 bis bd Moulay Ismail, 1st floor, Khouribga  
-Phone: +212523585353
-
-## 🖼️ Demo
-
-Add screenshots or screen recordings inside `/assets` and link them here.
-
-## 📜 License
-
-MIT — free to use and modify.
