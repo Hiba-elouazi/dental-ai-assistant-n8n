@@ -13,7 +13,7 @@ An AI-powered assistant for dental clinics that helps patients book appointments
 ## 📦 Files
 
 - `n8n-workflows/dental-ai-agent-workflow.json`: Main workflow
-- `assets/`: Images or screen recordings
+- `assets/`: Images 
 
 ## 🔧 Setup Instructions
 
